@@ -9,15 +9,37 @@ import (
 	"strconv"
 )
 
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
+
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+
+func abs(v int) int {
+	if v < 0 {
+		return -v
+	}
+	return v
+}
+
+func gcd(a, b int) int {
+	for b > 0 {
+		t := a / b
+		a, b = b, a-t*b
+	}
+	return a
+}
+
 func main() {
 	fmt.Printf("%d\n", resolve(parseProblem(os.Stdin)))
 }
 
 func parseProblem(r io.Reader) (map[direct]int, int) {
-	const (
-		initialBufSize = 100000
-		maxBufSize     = 1000000
-	)
 	buf := make([]byte, initialBufSize)
 
 	sc := bufio.NewScanner(r)
@@ -28,14 +50,21 @@ func parseProblem(r io.Reader) (map[direct]int, int) {
 	groups := map[direct]int{}
 	for i := 0; i < n; i++ {
 		a, b := scanInt(sc), scanInt(sc)
-		d := gcd(abs(a), abs(b))
-		if a < 0 {
-			a, b = -a/d, -b/d
-		}
 		if a == 0 && b == 0 {
 			zero++
+			continue
+		} else if a == 0 {
+			groups[direct{0, 1}]++
+			continue
+		} else if b == 0 {
+			groups[direct{1, 0}]++
+			continue
 		}
-		groups[direct{a, b}]++
+		d := gcd(abs(a), abs(b))
+		if a < 0 {
+			a, b = -a, -b
+		}
+		groups[direct{a / d, b / d}]++
 	}
 	return groups, zero
 }
@@ -45,6 +74,11 @@ type direct struct {
 }
 
 func (d direct) pair() direct {
+	if d.a == 0 && d.b == 1 {
+		return direct{a: 1, b: 0}
+	} else if d.a == 1 && d.b == 0 {
+		return direct{a: 0, b: 1}
+	}
 	return direct{a: d.b, b: -d.a}
 }
 
@@ -64,7 +98,6 @@ func resolve(groups map[direct]int, zero int) int {
 	result := 1
 	for d := range groups {
 		if _, ok := counted[d]; ok {
-			fmt.Printf("skipped, %v\n", d)
 			continue
 		}
 		var groupNum int
@@ -85,10 +118,9 @@ func resolve(groups map[direct]int, zero int) int {
 		}
 		result = moduloMul(result, groupNum, modulo)
 	}
-	result--
 	result = moduloAdd(
-		moduloMul(result, zero+1, modulo),
-		zero,
+		result,
+		zero-1,
 		modulo,
 	)
 	return result
@@ -214,28 +246,4 @@ func moduloLog(a, b, modulo int) int {
 
 var mark = struct{}{}
 
-func abs(v int) int {
-	if v < 0 {
-		return -v
-	}
-	return v
-}
-
-func gcd(a, b int) int {
-	for b > 0 {
-		t := a / b
-		a, b = b, a-t*b
-	}
-	return a
-}
-
 // snip-scan-funcs
-func scanInt(sc *bufio.Scanner) int {
-	sc.Scan()
-	i, _ := strconv.Atoi(sc.Text())
-	return int(i)
-}
-func scanString(sc *bufio.Scanner) string {
-	sc.Scan()
-	return sc.Text()
-}
