@@ -1,4 +1,4 @@
-package unionfind
+package gocom
 
 type unionfind struct {
 	card      int
