@@ -26,18 +26,18 @@ func (ll *basicLinkedList) addDirectedEdge(a, b int) {
 	}
 }
 
-func (g *basicLinkedList) exists(a, b int) bool {
-	return g.edges[a].doesContain(b)
+func (ll *basicLinkedList) exists(a, b int) bool {
+	return ll.edges[a].doesContain(b)
 }
 
 func nextLinkedList(n, m int, sc *bufio.Scanner) *basicLinkedList {
-	g := newLinkedList(n)
+	ll := newLinkedList(n)
 	for i := 0; i < n; i++ {
 		x, y := nextInt(sc), nextInt(sc)
 		// 0-indexed
 		x--
 		y--
-		g.addEdge(x, y)
+		ll.addEdge(x, y)
 	}
-	return g
+	return ll
 }
