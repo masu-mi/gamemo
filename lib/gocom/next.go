@@ -10,3 +10,8 @@ func nextInt(sc *bufio.Scanner) int {
 	a, _ := strconv.Atoi(sc.Text())
 	return int(a)
 }
+
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
