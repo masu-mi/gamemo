@@ -41,3 +41,15 @@ func nextLinkedList(n, m int, sc *bufio.Scanner) *basicLinkedList {
 	}
 	return ll
 }
+
+func nextDirectedLinkedList(n, m int, sc *bufio.Scanner) *basicLinkedList {
+	ll := newLinkedList(n)
+	for i := 0; i < n; i++ {
+		x, y := nextInt(sc), nextInt(sc)
+		// 0-indexed
+		x--
+		y--
+		ll.addDirectedEdge(x, y)
+	}
+	return ll
+}
