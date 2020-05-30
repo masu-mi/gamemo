@@ -27,11 +27,13 @@ func parseProblem(r io.Reader) int {
 }
 
 func resolve(n int) {
-	for i := 1; i <= n; i++ {
-		if int(float64(i)*1.08) == n {
-			fmt.Println(i)
-			return
+	// n/1.08 <= i < (n+1)/1.08: =>  ceil(n/1.08) <= i <= floor((n+1)/1.08)
+	for i := int((100*float64(n) + 107) / 108); i <= int((float64(n)+1)/1.08); i++ {
+		if int(float64(i)*1.08) != n {
+			continue
 		}
+		fmt.Println(i)
+		return
 	}
 	fmt.Println(":(")
 	return
