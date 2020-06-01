@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 )
@@ -28,20 +27,23 @@ func parseProblem(r io.Reader) int {
 }
 
 func resolve(n int) int {
-	if n < 2 {
-		return 0
-	}
-	num := n
+	// if n < 2 {
+	// 	return 0
+	// }
 	terms := map[int]int{}
-	former := int(math.Sqrt(float64(n))) + 1
-	for p := range primes(former) {
-		pNum := numP(n, p)
-		if pNum != 0 {
-			terms[p] = pNum
-			num /= pow(p, pNum)
+	num := n
+	for f := 2; f*f < n; f++ {
+		if num%f != 0 {
+			continue
 		}
+		ex := 0
+		for num%f == 0 {
+			num /= f
+			ex++
+		}
+		terms[f] = ex
 	}
-	if num != 1 {
+	if num > 1 {
 		terms[num] = 1
 	}
 	result := 0
@@ -73,16 +75,6 @@ func pow(n, i int) (res int) {
 	return res
 }
 
-func isPrime(n int) bool {
-	max := int(math.Sqrt(float64(n)))
-	for i := 2; i <= max+1; i++ {
-		if n%i == 0 {
-			return false
-		}
-	}
-	return true
-}
-
 func numP(n, p int) (i int) {
 	for n > 0 {
 		if n%p != 0 {
@@ -95,27 +87,27 @@ func numP(n, p int) (i int) {
 }
 
 func eratosthenes(n int) []bool {
-	isPrime := make([]bool, n)
-	for i := 2; i < len(isPrime); i++ {
-		isPrime[i] = true
+	t := make([]bool, n)
+	for i := 2; i < len(t); i++ {
+		t[i] = true
 	}
-	for i := 2; i < len(isPrime); i++ {
-		if !isPrime[i] {
+	for i := 2; i < len(t); i++ {
+		if !t[i] {
 			continue
 		}
-		for j := 2; j*i < len(isPrime); j++ {
-			isPrime[j*i] = false
+		for j := 2; j*i < len(t); j++ {
+			t[j*i] = false
 		}
 	}
-	return isPrime
+	return t
 }
 
 func primes(n int) chan int {
 	ch := make(chan int)
 	go func() {
-		isPrime := eratosthenes(n)
-		for i := 2; i < len(isPrime); i++ {
-			if !isPrime[i] {
+		t := eratosthenes(n)
+		for i := 2; i < len(t); i++ {
+			if !t[i] {
 				continue
 			}
 			ch <- i
