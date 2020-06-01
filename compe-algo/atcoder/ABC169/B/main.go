@@ -28,7 +28,7 @@ func parseProblem(r io.Reader) {
 	for i := 0; i < 18; i++ {
 		limit *= 10
 	}
-	var exp float64 = 1
+	var exp float64 = 1e18
 	var res uint64 = 1
 	over := false
 	for i := 0; i < n; i++ {
@@ -37,9 +37,9 @@ func parseProblem(r io.Reader) {
 			fmt.Println("0")
 			return
 		}
-		exp *= float64(c)
+		exp /= float64(c)
 		res *= c
-		if res > limit || exp > 1e18 {
+		if res > limit || exp < 1 {
 			over = true
 			res = 1
 		}
