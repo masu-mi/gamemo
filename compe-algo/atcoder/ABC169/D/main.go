@@ -27,9 +27,6 @@ func parseProblem(r io.Reader) int {
 }
 
 func resolve(n int) int {
-	// if n < 2 {
-	// 	return 0
-	// }
 	terms := map[int]int{}
 	num := n
 	for f := 2; f*f < n; f++ {
