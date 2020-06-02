@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 func main() {
@@ -23,8 +22,7 @@ func find(n int) int {
 
 func divisorNumIs(n, divisor int) bool {
 	life := divisor - 2
-	limit := int(math.Sqrt(float64(n)))
-	for i := 2; i <= limit+1; i++ {
+	for i := 2; i*i <= n; i++ {
 		if n%i == 0 {
 			if n/i == i {
 				life--
