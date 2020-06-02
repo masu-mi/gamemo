@@ -43,7 +43,7 @@ func primes(n int) chan int {
 func primeFactories(n int) (terms map[int]int) {
 	terms = map[int]int{}
 	num := n
-	for f := 2; f*f < n; f++ {
+	for f := 2; f*f <= n; f++ {
 		if num%f != 0 {
 			continue
 		}
