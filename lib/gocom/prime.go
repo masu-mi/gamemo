@@ -47,15 +47,18 @@ func primeFactories(n int) (terms map[int]int) {
 		if num%f != 0 {
 			continue
 		}
-		ex := 0
-		for num%f == 0 {
-			num /= f
-			ex++
-		}
-		terms[f] = ex
+		terms[f] = primeExponent(num, f)
 	}
 	if num > 1 {
 		terms[num] = 1
+	}
+	return
+}
+
+func primeExponent(n, p int) (ex int) {
+	for n%p == 0 {
+		n /= p
+		ex++
 	}
 	return
 }
