@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -28,9 +29,23 @@ func parseProblem(r io.Reader) (int, int) {
 
 func resolve(n, m int) int {
 	l := m / n
-	for i := l; i <= i; i-- {
-		if (m-n*i)%i == 0 {
-			return i
+	dd := make([]int, 0)
+	for i := 2; i*i <= m; i++ {
+		if m%i != 0 {
+			continue
+		}
+		dd = append(dd, i)
+		if i == m/i {
+			continue
+		}
+		dd = append(dd, m/i)
+	}
+	dd = append(dd, 1)
+	dd = append(dd, m)
+	sort.Sort(sort.Reverse(sort.IntSlice(dd)))
+	for _, v := range dd {
+		if v <= l {
+			return v
 		}
 	}
 	// no path
