@@ -3,33 +3,57 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"math"
 	"os"
 	"strconv"
 )
 
 func main() {
-	// for http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=0516
-	// referenced by https://qiita.com/drken/items/56a6b68edef8fc605821#fn1
-	var n, k int
-	fmt.Scan(&n, &k)
-	sc := bufio.NewScanner(os.Stdin)
-	sc.Split(bufio.ScanWords)
-	cumulative := make([]int, n)
-	sc.Scan()
-	cumulative[0], _ = strconv.Atoi(sc.Text())
-	for i := 1; i < n; i++ {
-		sc.Scan()
-		cumulative[i], _ = strconv.Atoi(sc.Text())
-		cumulative[i] += cumulative[i-1]
-	}
-	sc.Scan() // 0
-	sc.Scan() // 0
-	var max int
-	for i := k; i < n; i++ {
-		sum := cumulative[i] - cumulative[i-k]
-		if max < sum {
-			max = sum
+	parseProblem(os.Stdin)
+}
+
+func parseProblem(r io.Reader) {
+	const (
+		initialBufSize = 100000
+		maxBufSize     = 1000000
+	)
+	buf := make([]byte, initialBufSize)
+
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	for true {
+		n, k := scanInt(sc), scanInt(sc)
+		if n == 0 && k == 0 {
+			break
 		}
+		sum := make([]int, n+2)
+		for i := 2; i <= n+1; i++ {
+			sum[i] = sum[i-1] + scanInt(sc)
+		}
+		max := math.MinInt32
+		for i := 1; i+k <= n+1; i++ {
+			if v := sum[i+k] - sum[i]; max < v {
+				max = v
+			}
+		}
+		fmt.Println(max)
 	}
-	fmt.Printf("%d\n", max)
+	return
+}
+
+func resolve(n int) int {
+	return n
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
