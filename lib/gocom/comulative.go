@@ -2,13 +2,13 @@ package gocom
 
 import "bufio"
 
-func zetaTransform(a []int) (z []int) {
+func getComulative(a []int) (z []int) {
 	z = make([]int, len(a)+1)
 	(&reducer{}).reduce(&z, a)
 	return
 }
 
-func nextZetaIntSlice(sc *bufio.Scanner, n int, init int, op func(v, acc int) int) (a, z []int) {
+func nextComulative(sc *bufio.Scanner, n int, init int, op func(v, acc int) int) (a, z []int) {
 	a = make([]int, n)
 	z = make([]int, n+1)
 	r := &reducer{init: init, op: op}
