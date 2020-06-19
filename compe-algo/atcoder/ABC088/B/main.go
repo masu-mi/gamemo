@@ -1,67 +1,81 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"sort"
+	"strconv"
+)
+
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
+
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
+}
 
 func main() {
-	var n int
-	fmt.Scanf("%d", &n)
-	h := NewHeap(n)
-	var tmp int
-	for i := 0; i < n; i++ {
-		fmt.Scanf("%d", &tmp)
-		h.Push(tmp)
-	}
-	var diff int
-	move := 1
-	for !h.IsEmpty() {
-		diff += move * h.Pop()
-		move *= -1
-	}
-	fmt.Printf("%d\n", diff)
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve(parseProblem()))
 }
 
-type heap struct {
-	num    int
-	buffer []int
-}
-
-func NewHeap(size int) *heap {
-	return &heap{num: 0, buffer: make([]int, size)}
-}
-
-func (h *heap) IsEmpty() bool {
-	return h.num == 0
-}
-
-func (h *heap) Push(v int) {
-	h.num++
-	h.buffer[h.num-1] = v
-	for i := h.num; i/2 > 0; {
-		if h.buffer[i-1] <= h.buffer[i/2-1] {
-			break
-		}
-		h.buffer[i/2-1], h.buffer[i-1] = h.buffer[i-1], h.buffer[i/2-1]
-		i /= 2
-	}
-}
-func (h *heap) Pop() int {
-	v := h.buffer[0]
-	h.buffer[0] = h.buffer[h.num-1]
-	for i := 1; 2*i <= h.num; {
-		if 2*i+1 > h.num || h.buffer[2*i] <= h.buffer[2*i-1] {
-			if h.buffer[i-1] >= h.buffer[i*2-1] {
-				break
-			}
-			h.buffer[i-1], h.buffer[i*2-1] = h.buffer[i*2-1], h.buffer[i-1]
-			i = i * 2
+func parseProblem() int {
+	n := scanInt(sc)
+	s := nextIntSlice(sc, n)
+	sort.Sort(sort.Reverse(sort.IntSlice(s)))
+	a, b := 0, 0
+	for i := 0; i < len(s); i++ {
+		if i%2 == 0 {
+			a += s[i]
 		} else {
-			if h.buffer[i-1] >= h.buffer[i*2] {
-				break
-			}
-			h.buffer[i-1], h.buffer[i*2] = h.buffer[i*2], h.buffer[i-1]
-			i = i*2 + 1
+			b += s[i]
 		}
 	}
-	h.num--
-	return v
+	return a - b
+}
+
+func nextInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	a, _ := strconv.Atoi(sc.Text())
+	return int(a)
+}
+
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
+
+	a = make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt(sc)
+	}
+	return a
+}
+
+func resolve(n int) int {
+	return n
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
