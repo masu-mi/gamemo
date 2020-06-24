@@ -1,26 +1,63 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+)
+
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
+
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
+}
 
 func main() {
-	var n, a, b int
-	fmt.Scanf("%d %d %d", &n, &a, &b)
-	fmt.Printf("%d\n", count(n, a, b))
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve(parseProblem()))
 }
 
-func count(n, a, b int) (result int) {
+func parseProblem() (int, int, int) {
+	n, a, b := scanInt(sc), scanInt(sc), scanInt(sc)
+	return n, a, b
+}
+
+func resolve(n, a, b int) int {
+	sum := 0
 	for i := 1; i <= n; i++ {
-		if isValidNumber(i, a, b) {
-			result += i
+		if s := digitSum(i); a <= s && s <= b {
+			sum += i
 		}
 	}
-	return result
+	return sum
 }
 
-func isValidNumber(i, a, b int) bool {
-	var sum int
-	for ; i > 0; i /= 10 {
-		sum += i % 10
+func digitSum(n int) (sum int) {
+	for cur := n; cur > 0; cur /= 10 {
+		sum += cur % 10
 	}
-	return sum >= a && sum <= b
+	return sum
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
