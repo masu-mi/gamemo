@@ -34,6 +34,7 @@ func resolve() {
 	ok := 0
 	acs := make([]bool, n)
 	penas := make([]int, n)
+	pena := 0
 	for _ = range loop0(m) {
 		p := scanInt(sc) - 1
 		ans := scanString(sc)
@@ -43,14 +44,9 @@ func resolve() {
 		if ans == "AC" {
 			ok++
 			acs[p] = true
+			pena += penas[p]
 		} else {
 			penas[p]++
-		}
-	}
-	pena := 0
-	for i := range loop0(n) {
-		if acs[i] {
-			pena += penas[i]
 		}
 	}
 	fmt.Printf("%d %d\n", ok, pena)
