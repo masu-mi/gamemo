@@ -36,15 +36,13 @@ func resolve() {
 	for i := range as {
 		nums[as[i]]++
 	}
-	combis := map[int]int{}
 	combiNum := 0
-	for i, v := range nums {
-		combis[i] = v * (v - 1) >> 1
-		combiNum += combis[i]
+	for _, v := range nums {
+		combiNum += v * (v - 1) >> 1
 	}
 	for _, v := range as {
 		num := nums[v]
-		fmt.Println(combiNum - combis[v] + (num-1)*(num-2)>>1)
+		fmt.Println(combiNum - (num - 1))
 	}
 	return
 }
