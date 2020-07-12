@@ -37,7 +37,7 @@ func parseProblem() {
 		ex := exOf(v, 2)
 		exNums[min(2, ex)]++
 	}
-	if exNums[0]+exNums[1]%2 > exNums[2]+1 {
+	if exNums[0]+((exNums[1]+1)/2)&1 > exNums[2]+1 {
 		fmt.Println("No")
 		return
 	}
