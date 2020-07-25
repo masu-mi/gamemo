@@ -1,69 +1,147 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"io"
+	"os"
+	"strconv"
 )
 
-func main() {
-	var h, w int
-	fmt.Scan(&h, &w)
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-	field := make([]string, h+2)
-	visited := make([][]bool, h+2)
+var sc *bufio.Scanner
 
-	wall := makeWall(w)
-	field[0] = wall
-	visited[0] = make([]bool, w+2)
-	for i := 1; i <= h; i++ {
-		var s string
-		fmt.Scan(&s)
-		field[i] = "#" + s + "#"
-		visited[i] = make([]bool, w+2)
-	}
-	field[h+1] = wall
-	visited[h+1] = make([]bool, w+2)
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
 
-	for i := 1; i <= h; i++ {
-		for j := 1; j <= w; j++ {
-			if field[i][j] == start {
-				if dfs(i, j, field, visited) {
-					fmt.Println("Yes")
-					return
-				}
-			}
-		}
-	}
-	fmt.Println("No")
-	return
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
 }
 
-func dfs(i, j int, field []string, visited [][]bool) bool {
-	visited[i][j] = true
-	type move struct{ v, h int }
-	for _, m := range []move{{-1, 0}, {0, 1}, {1, 0}, {0, -1}} {
-		ni, nj := i+m.v, j+m.h
-		if field[ni][nj] == goal {
-			return true
-		} else if field[ni][nj] != wall && !visited[ni][nj] {
-			if dfs(ni, nj, field, visited) {
+func main() {
+	sc = initScanner(os.Stdin)
+	if resolve(parseProblem()) {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+}
+
+func parseProblem() (int, int, []string) {
+	h, w, g := loadGrid(sc)
+	return h, w, g
+}
+
+const (
+	wallByte = '#'
+)
+
+func loadGrid(sc *bufio.Scanner) (h, w int, grid []string) {
+	h, w = nextInt(sc), nextInt(sc)
+	grid = make([]string, h+2)
+	wall := createWall(w)
+	grid[0] = wall
+	for i := 1; i <= h; i++ {
+		sc.Scan()
+		buf := bytes.NewBuffer([]byte{})
+		buf.Write([]byte{wallByte})
+		buf.WriteString(sc.Text())
+		buf.Write([]byte{wallByte})
+		grid[i] = buf.String()
+	}
+	grid[h+1] = wall
+	return h, w, grid
+}
+
+func createWall(w int) string {
+	buf := bytes.NewBuffer([]byte{})
+	for i := 0; i < w+2; i++ {
+		buf.Write([]byte{wallByte})
+	}
+	return buf.String()
+}
+func nextInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	a, _ := strconv.Atoi(sc.Text())
+	return int(a)
+}
+
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
+
+	a = make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt(sc)
+	}
+	return a
+}
+
+type pos struct{ x, y int }
+
+func resolve(h, w int, g []string) bool {
+	s := find(g, 's')
+	t := find(g, 'g')
+	visited := newBooleanGrid(h, w)
+	visited[s.x][s.y] = true
+	q := []pos{s}
+	var cur pos
+	for len(q) > 0 {
+		cur, q = q[0], q[1:]
+		for _, df := range []pos{{1, 0}, {-1, 0}, {0, 1}, {0, -1}} {
+			next := pos{cur.x + df.x, cur.y + df.y}
+			if visited[next.x][next.y] {
+				continue
+			}
+			visited[next.x][next.y] = true
+			if g[next.x][next.y] == '#' {
+				continue
+			}
+			if next == t {
 				return true
 			}
+			q = append(q, next)
 		}
 	}
 	return false
 }
 
-const (
-	start = 's'
-	goal  = 'g'
-	wall  = '#'
-)
-
-func makeWall(w int) string {
-	buf := bytes.NewBuffer([]byte{})
-	for i := 0; i <= w+1; i++ {
-		buf.Write([]byte{wall})
+func newBooleanGrid(h, w int) (r [][]bool) {
+	r = make([][]bool, h+2)
+	for i := range r {
+		r[i] = make([]bool, w+2)
 	}
-	return buf.String()
+	return r
+}
+
+func find(g []string, c byte) pos {
+	for i := 1; i < len(g); i++ {
+		for j := 1; j < len(g[i]); j++ {
+			if g[i][j] == c {
+				return pos{i, j}
+			}
+		}
+	}
+	return pos{0, 0}
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
