@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -63,15 +62,15 @@ func (t tasks) Swap(i, j int) {
 }
 
 func resolve(n int, ts []task) bool {
-	sort.Sort(sort.Reverse(tasks(ts)))
-	limit := math.MaxInt32
+	sort.Sort(tasks(ts))
+	sum := 0
 	for _, t := range ts {
-		if t.limit <= limit {
-			limit = t.limit
+		sum += t.take
+		if t.limit < sum {
+			return false
 		}
-		limit -= t.take
 	}
-	return limit >= 0
+	return true
 }
 
 // snip-scan-funcs
