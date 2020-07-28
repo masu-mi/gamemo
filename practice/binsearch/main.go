@@ -9,71 +9,78 @@ import (
 	"strconv"
 )
 
-func main() {
-	resolve(os.Stdin)
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-func resolve(r io.Reader) {
-	const (
-		initialBufSize = 100000
-		maxBufSize     = 1000000
-	)
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
 	buf := make([]byte, initialBufSize)
 
 	sc := bufio.NewScanner(r)
 	sc.Buffer(buf, maxBufSize)
 	sc.Split(bufio.ScanWords) // bufio.ScanLines
-	n, m := scanInt(sc), scanInt(sc)
-	nums := make([]int, n)
-	for i := 0; i < n; i++ {
-		nums[i] = scanInt(sc)
-	}
-	if !sort.IsSorted(sort.IntSlice(nums)) {
-		fmt.Printf("Invalid Input %v\n", nums)
-		os.Exit(1)
-	}
-	i := lowerBoundOrig(len(nums), func(i int) bool {
-		return nums[i] >= m
-	})
-	fmt.Printf(">= m: %d at %d, %v\n", m, i, nums)
-
-	i = lowerBound(len(nums), func(i int) bool {
-		return nums[i] >= m
-	})
-	fmt.Printf(">= m: %d at %d, %v\n", m, i, nums)
-
-	i = upperBound(len(nums), func(i int) bool {
-		return nums[i] < m
-	})
-	fmt.Printf(" < m: %d at %d, %v\n", m, i, nums)
-
-	i = upperBound(len(nums), func(i int) bool {
-		return nums[i] <= m
-	})
-	fmt.Printf("<= m: %d at %d, %v\n", m, i, nums)
+	return sc
 }
 
-func lowerBoundOrig(n int, f func(i int) bool) int {
-	left := -1
-	right := n
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve(parseProblem()))
+}
 
-	for right-left > 1 {
-		mid := left + (right-left)/2
+func parseProblem() (int, int, []int) {
+	n, m := scanInt(sc), scanInt(sc)
+	as := nextIntSlice(sc, n)
+	return n, m, as
+}
+
+func nextInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	a, _ := strconv.Atoi(sc.Text())
+	return int(a)
+}
+
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
+
+	a = make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt(sc)
+	}
+	return a
+}
+
+func resolve(n, m int, as []int) int {
+	sort.Sort(sort.IntSlice(as))
+	fmt.Println(as)
+	return binSearch(-1, len(as), func(idx int) bool {
+		return m <= as[idx]
+	})
+}
+
+func binSearch(l, r int, f func(idx int) bool) int {
+	for abs(r-l) > 1 {
+		mid := l + (r-l)>>1
 		if f(mid) {
-			right = mid
+			r = mid
 		} else {
-			left = mid
+			l = mid
 		}
 	}
-	return right
+	return r
 }
 
-func lowerBound(n int, f func(i int) bool) int {
-	return sort.Search(n, f)
-}
-
-func upperBound(n int, f func(i int) bool) int {
-	return sort.Search(n, func(i int) bool { return !f(i) }) - 1
+func abs(v int) int {
+	if v < 0 {
+		return -v
+	}
+	return v
 }
 
 // snip-scan-funcs
