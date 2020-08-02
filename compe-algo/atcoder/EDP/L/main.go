@@ -63,25 +63,50 @@ func resolve(n int, as []int) int {
 			dp[i][j] = -1
 		}
 	}
-	return _resolve(as, 0, len(as)-1)
+	return _resolve(as, len(as), 0, len(as)-1)
 }
 
 var dp [][]int
 
-func _resolve(as []int, l, r int) int {
+func _resolve(as []int, n, l, r int) int {
 	if dp[l][r] != -1 {
 		return dp[l][r]
 	}
+	pTurn := n - (r - l + 1)
 	if l == r {
-		dp[l][r] = as[l]
+		if pTurn%2 == 0 {
+			dp[l][r] = as[l]
+		} else {
+			dp[l][r] = -as[l]
+		}
 		return dp[l][r]
 	}
-	dp[l][r] = as[l] - _resolve(as, l+1, r)
-	cand := as[r] - _resolve(as, l, r-1)
-	if dp[l][r] < cand {
-		dp[l][r] = cand
+	switch pTurn % 2 {
+	case 0:
+		dp[l][r] = max(
+			_resolve(as, n, l+1, r)+as[l],
+			_resolve(as, n, l, r-1)+as[r],
+		)
+	case 1:
+		dp[l][r] = min(
+			_resolve(as, n, l+1, r)-as[l],
+			_resolve(as, n, l, r-1)-as[r],
+		)
 	}
 	return dp[l][r]
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // snip-scan-funcs
