@@ -33,25 +33,23 @@ func (ll *weightedLinkedList) weight(a, b int) (int, bool) {
 	return w, ok
 }
 
-func nextWeightedLinkedList(n, m int, sc *bufio.Scanner) *weightedLinkedList {
+func nextWeightedLinkedList(n, m, offset int, sc *bufio.Scanner) *weightedLinkedList {
 	ll := newWeightedLinkedList(n)
-	for i := 0; i < n; i++ {
+	for i := 0; i < m; i++ {
 		x, y, w := nextInt(sc), nextInt(sc), nextInt(sc)
-		// 0-indexed
-		x--
-		y--
+		x -= offset
+		y -= offset
 		ll.addEdge(x, y, w)
 	}
 	return ll
 }
 
-func nextDirectedWeightedLinkedList(n, m int, sc *bufio.Scanner) *weightedLinkedList {
+func nextDirectedWeightedLinkedList(n, m, offset int, sc *bufio.Scanner) *weightedLinkedList {
 	ll := newWeightedLinkedList(n)
-	for i := 0; i < n; i++ {
+	for i := 0; i < m; i++ {
 		x, y, w := nextInt(sc), nextInt(sc), nextInt(sc)
-		// 0-indexed
-		x--
-		y--
+		x -= offset
+		y -= offset
 		ll.addDirectedEdge(x, y, w)
 	}
 	return ll

@@ -30,25 +30,25 @@ func (ll *basicLinkedList) exists(a, b int) bool {
 	return ll.edges[a].doesContain(b)
 }
 
-func nextLinkedList(n, m int, sc *bufio.Scanner) *basicLinkedList {
+func nextLinkedList(n, m, offset int, sc *bufio.Scanner) *basicLinkedList {
 	ll := newLinkedList(n)
-	for i := 0; i < n; i++ {
+	for i := 0; i < m; i++ {
 		x, y := nextInt(sc), nextInt(sc)
-		// 0-indexed
-		x--
-		y--
+		// We use 0-indexed internally
+		x -= offset
+		y -= offset
 		ll.addEdge(x, y)
 	}
 	return ll
 }
 
-func nextDirectedLinkedList(n, m int, sc *bufio.Scanner) *basicLinkedList {
+func nextDirectedLinkedList(n, m, offset int, sc *bufio.Scanner) *basicLinkedList {
 	ll := newLinkedList(n)
-	for i := 0; i < n; i++ {
+	for i := 0; i < m; i++ {
 		x, y := nextInt(sc), nextInt(sc)
-		// 0-indexed
-		x--
-		y--
+		// We use 0-indexed internally
+		x -= offset
+		y -= offset
 		ll.addDirectedEdge(x, y)
 	}
 	return ll
