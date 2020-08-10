@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 )
@@ -34,28 +35,25 @@ func parseProblem() (a, b, ab, x, y int) {
 }
 
 func resolve(a, b, ab, x, y int) int {
-	minCost := 0
-	if 2*ab < a+b {
-		minNum := min(x, y)
-		x -= minNum
-		y -= minNum
-		minCost += ab * 2 * minNum
-	}
-	if x > 0 {
-		if ab*2 < a {
-			minCost += ab * 2 * x
-		} else {
-			minCost += a * x
-		}
-	}
-	if y > 0 {
-		if ab*2 < b {
-			minCost += ab * 2 * y
-		} else {
-			minCost += b * y
+	minCost := math.MaxInt64
+	for i := 0; i <= max(x, y); i++ {
+		v := cost(a, b, ab, 2*i, x, y)
+		if v < minCost {
+			minCost = v
 		}
 	}
 	return minCost
+}
+
+func cost(a, b, ab, n, x, y int) int {
+	return ab*n + max(0, x-n/2)*a + max(0, y-n/2)*b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func min(a, b int) int {
