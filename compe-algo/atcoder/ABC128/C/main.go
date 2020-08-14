@@ -8,55 +8,77 @@ import (
 	"strconv"
 )
 
-func main() {
-	fmt.Printf("%d\n", resolve(parseProblem(os.Stdin)))
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-func parseProblem(r io.Reader) (n, m int, mp []int, ms []uint) {
-	fmt.Fscan(r, &n, &m)
+var sc *bufio.Scanner
 
-	ms = make([]uint, m)
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
 	sc := bufio.NewScanner(r)
-	sc.Split(bufio.ScanWords)
-	for i := 0; i < m; i++ {
-		sc.Scan()
-		k, _ := strconv.Atoi(sc.Text())
-		for j := 0; j < k; j++ {
-			sc.Scan()
-			ss, _ := strconv.Atoi(sc.Text())
-			ms[i] |= 1 << (uint(ss) - 1)
-		}
-	}
-	mp = make([]int, m)
-	for i := 0; i < m; i++ {
-		sc.Scan()
-		p, _ := strconv.Atoi(sc.Text())
-		mp[i] = p
-	}
-	return n, m, mp, ms
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
 }
 
-func resolve(n, m int, mp []int, ms []uint) int {
-	var count int
-	for i := 0; i < 1<<uint(n); i++ {
-		if allOn(uint(i), m, mp, ms) {
-			count++
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve(parseProblem()))
+}
+
+func parseProblem() int {
+	n, m := scanInt(sc), scanInt(sc)
+	tb := make([][]int, m)
+	for i := 0; i < m; i++ {
+		tb[i] = make([]int, n)
+		l := scanInt(sc)
+		for j := 0; j < l; j++ {
+			tb[i][scanInt(sc)-1] = 1
 		}
 	}
-	return count
-}
-func allOn(l uint, m int, mp []int, ms []uint) bool {
+	ps := make([]int, m)
 	for i := 0; i < m; i++ {
-		if mp[i] != int(onesCount(ms[i]&l)&1) {
+		ps[i] = scanInt(sc)
+	}
+	num := 0
+	for i := 0; i < 1<<uint(n); i++ {
+		if accept(n, m, tb, ps, i) {
+			num++
+		}
+	}
+	return num
+}
+
+func accept(n, m int, tb [][]int, ps []int, idx int) bool {
+	for i := 0; i < m; i++ {
+		sum := 0
+		for j := 0; j < n; j++ {
+			if idx&(1<<uint(j)) == 0 {
+				continue
+			}
+			sum += tb[i][j]
+		}
+		if ps[i] != sum%2 {
 			return false
 		}
 	}
 	return true
 }
 
-func onesCount(bits uint) (num uint) {
-	num = (bits >> 1) & 03333333333
-	num = bits - num - ((num >> 1) & 03333333333)
-	num = ((num + (num >> 3)) & 0707070707) % 077
-	return
+func resolve(n int) int {
+	return n
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
