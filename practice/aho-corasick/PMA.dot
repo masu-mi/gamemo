@@ -1,0 +1,12 @@
+digraph PMA {
+    "" -> a   ["label" = "a"]
+    a -> ab   ["label" = "b"]
+    a -> ""   ["style" = dotted]
+    ab -> abc ["label" = c]
+    ab -> b   ["style" = dotted]
+    "" -> b   ["label" = b]
+    b -> bc   ["label" = c]
+    b -> ""   ["style" = dotted]
+    bc -> bcd ["label" = d]
+    abc -> bc ["style" = dotted]
+}
