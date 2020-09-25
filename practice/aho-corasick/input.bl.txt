@@ -1,6 +1,7 @@
-4
-some pattern
+5
 ample
+example
+some pattern
 tte
 xxxxxxxxx
 example som pattern some patxxxxxxxxxxxxx fa same pattern ...some pattern x
