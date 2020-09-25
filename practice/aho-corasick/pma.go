@@ -34,6 +34,7 @@ func (a *pma) addPatternEdgeds(pattern string) {
 }
 
 func (a *pma) buildFailureEdges() {
+	// implement with BFS
 	a.failureEdges = make([]int, a.nodeNum())
 	a.failureEdges[a.rootNode()] = a.rootNode()
 	q := []int{a.rootNode()}
