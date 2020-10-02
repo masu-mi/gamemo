@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -57,17 +56,10 @@ func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
 }
 
 func resolve(n, m int, as []int) int {
-	sort.Sort(sort.IntSlice(as))
-	fmt.Println(as)
-	return binSearch(-1, len(as), func(idx int) bool {
-		return m <= as[idx]
-	})
-}
-
-func binSearch(l, r int, f func(idx int) bool) int {
+	l, r := -1, len(as)
 	for abs(r-l) > 1 {
 		mid := l + (r-l)>>1
-		if f(mid) {
+		if m <= as[mid] {
 			r = mid
 		} else {
 			l = mid
@@ -76,11 +68,11 @@ func binSearch(l, r int, f func(idx int) bool) int {
 	return r
 }
 
-func abs(v int) int {
-	if v < 0 {
-		return -v
+func abs(x int) int {
+	if x < 0 {
+		return -x
 	}
-	return v
+	return x
 }
 
 // snip-scan-funcs
@@ -88,8 +80,4 @@ func scanInt(sc *bufio.Scanner) int {
 	sc.Scan()
 	i, _ := strconv.Atoi(sc.Text())
 	return int(i)
-}
-func scanString(sc *bufio.Scanner) string {
-	sc.Scan()
-	return sc.Text()
 }
