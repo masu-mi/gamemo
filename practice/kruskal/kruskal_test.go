@@ -1,6 +1,7 @@
 package kruskal
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ func TestFindMSTWithKruskal(t *testing.T) {
 		edges []edge
 		cost  int
 	}
-	for _, c := range []testCase{
+	for idx, c := range []testCase{
 		testCase{
 			card:  1,
 			edges: []edge{},
@@ -58,12 +59,14 @@ func TestFindMSTWithKruskal(t *testing.T) {
 			cost: 4,
 		},
 	} {
-		_, cost, err := findMSTWithKruskal(c.card, c.edges)
-		if err != nil {
-			t.Fatalf("error retunred %v", err)
-		}
-		if cost != c.cost {
-			t.Fatalf("want %d, but %d", c.cost, cost)
-		}
+		t.Run(fmt.Sprintf("idx: %d", idx), func(t *testing.T) {
+			_, cost, err := findMSTWithKruskal(c.card, c.edges)
+			if err != nil {
+				t.Fatalf("error retunred %v", err)
+			}
+			if cost != c.cost {
+				t.Fatalf("want %d, but %d", c.cost, cost)
+			}
+		})
 	}
 }
