@@ -1,3 +1,6 @@
+use std::cmp::Ord;
+use std::cmp::Ordering;
+
 fn main() {
     let mut v = Vec::new();
     for i in 1..10 {
@@ -11,7 +14,7 @@ fn main() {
     }
 }
 
-fn binary_search (vec: &Vec<i32>, i: &i32) -> Result<(usize, i32), i32> {
+fn binary_search<'a, T : Ord>(vec: &'a Vec<T>, i: &T) -> Result<(usize, &'a T), i32> {
     let mut l: i32 = -1;
     let mut r: i32 = vec.len() as i32;
     if vec.len() == 0 {
@@ -19,7 +22,7 @@ fn binary_search (vec: &Vec<i32>, i: &i32) -> Result<(usize, i32), i32> {
     }
     while (r-l).abs() > 1 {
         let mid = l + ((r-l)>>1);
-        if vec[mid as usize] >= *i {
+        if vec[mid as usize].cmp(&i) == Ordering::Greater {
             r = mid
         } else {
             l = mid
@@ -28,5 +31,5 @@ fn binary_search (vec: &Vec<i32>, i: &i32) -> Result<(usize, i32), i32> {
     if r == -1 || r == (vec.len() as i32) {
         return Err(r);
     }
-    Ok((r as usize, vec[r as usize]))
+    Ok((r as usize, &vec[r as usize]))
 }
