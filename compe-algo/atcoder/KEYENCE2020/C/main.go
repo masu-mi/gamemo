@@ -36,16 +36,21 @@ func parseProblem() (int, int, int) {
 
 func resolve(n, k, s int) {
 	if k == 0 {
-		fmt.Printf("%d", s+1)
+		var v int
+		if s < 1000000000 {
+			v = s + 1
+		} else {
+			v = 1
+		}
+		fmt.Printf("%d", v)
 		for i := 1; i < n; i++ {
-			fmt.Printf(" %d", s+1)
+			fmt.Printf(" %d", v)
 		}
 		fmt.Println()
 		return
 	}
-	segmentSize := n - k + 1
-	if s < 2*segmentSize {
-		fmt.Printf("%d", s)
+	if s <= n {
+		fmt.Printf(" %d", s)
 		for i := 1; i < n; i++ {
 			if i < k {
 				fmt.Printf(" %d", s)
@@ -56,24 +61,12 @@ func resolve(n, k, s int) {
 		fmt.Println()
 		return
 	}
-	ordVal := s / segmentSize
-	var lVal, rVal int
-	{
-		df := s % segmentSize
-		if df == 0 {
-			lVal, rVal = ordVal-1, ordVal+1
-		} else {
-			lVal, rVal = ordVal, ordVal+df
-		}
-	}
-	fmt.Printf("%d", lVal)
+	fmt.Printf(" %d", s)
 	for i := 1; i < n; i++ {
-		if rem := i % segmentSize; rem == 0 {
-			fmt.Printf(" %d", lVal)
-		} else if rem == segmentSize-1 {
-			fmt.Printf(" %d", rVal)
+		if i < k {
+			fmt.Printf(" %d", s)
 		} else {
-			fmt.Printf(" %d", ordVal)
+			fmt.Printf(" %d", 1)
 		}
 	}
 	fmt.Println()
