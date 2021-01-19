@@ -32,42 +32,39 @@ func main() {
 
 func resolve() int {
 	str := scanString(sc)
+	secSizes := findSectionSizeForByte(str)
+	m := math.MaxInt64
+	for _, s := range secSizes {
+		if s < m {
+			m = s
+		}
+	}
+	return m
+}
+
+func findSectionSizeForByte(str string) map[byte]int {
+	// section is byte sequence which don't involved the target byte.
+	maxSec := map[byte]int{}
 	lastPos := map[byte]int{}
-	maxSectionLen := map[byte]int{}
-	for i := range str {
+	for i := 0; i < len(str); i++ {
 		b := str[i]
-		var l int
-		if _, ok := lastPos[b]; ok {
-			l = i - lastPos[b] - 1
+		if lp, ok := lastPos[b]; !ok {
+			maxSec[str[i]] = i
 		} else {
-			l = i
+			ls := i - lp - 1
+			if maxSec[b] < ls {
+				maxSec[b] = ls
+			}
 		}
-		updateWithMax(maxSectionLen, b, l)
-		lastPos[b] = i
+		lastPos[str[i]] = i
 	}
-	for b, p := range lastPos {
-		l := len(str) - p - 1
-		updateWithMax(maxSectionLen, b, l)
-	}
-	return selectMin(maxSectionLen)
-}
-
-func updateWithMax(m map[byte]int, i byte, v int) bool {
-	update := m[i] <= v
-	if update {
-		m[i] = v
-	}
-	return update
-}
-
-func selectMin(m map[byte]int) int {
-	min := math.MaxInt32
-	for _, secLen := range m {
-		if min > secLen {
-			min = secLen
+	for b, lp := range lastPos {
+		ls := len(str) - lp - 1
+		if ls > maxSec[b] {
+			maxSec[b] = ls
 		}
 	}
-	return min
+	return maxSec
 }
 
 // snip-scan-funcs
