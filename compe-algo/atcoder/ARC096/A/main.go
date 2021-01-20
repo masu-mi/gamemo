@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 )
@@ -28,29 +29,21 @@ func main() {
 	sc = initScanner(os.Stdin)
 	fmt.Println(resolve())
 }
+
 func resolve() int {
 	a, b, c, x, y := scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc)
-	var price int
+	result := math.MaxInt64
+	for i := 0; i <= max(x, y); i++ {
+		v := cost(a, b, c, 2*i, x, y)
+		if result > v {
+			result = v
+		}
+	}
+	return result
+}
 
-	var base int
-	if a+b > 2*c {
-		base = 2 * c
-	} else {
-		base = a + b
-	}
-	minNum, leftNum := min(x, y), max(x, y)-min(x, y)
-	price += minNum * base
-	var left int
-	if x > y {
-		left = a
-	} else {
-		left = b
-	}
-	if left > 2*c {
-		left = 2 * c
-	}
-	price += leftNum * left
-	return price
+func cost(a, b, c, n, x, y int) int {
+	return c*n + a*max(0, x-(n/2)) + b*max(0, y-(n/2))
 }
 
 // package: gocom
