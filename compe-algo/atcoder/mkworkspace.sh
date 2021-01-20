@@ -8,3 +8,5 @@ echo $dir
 
 mkdir -p $dir
 touch $dir/main.go
+mkdir -p $dir/rust
+cd $dir/rust && cargo init
