@@ -1,57 +1,61 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
+	"strconv"
 )
 
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
+
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
+}
+
 func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
+}
 
-	acceptable := newByteSet("ACGT")
-	var str string
-	fmt.Scanf("%s", &str)
-
-	var max int
-
-	for i := 0; i < len(str); {
-		subL := 0
-		for j := i; j < len(str); j++ {
-			if !acceptable.doesContain(str[j]) {
-				break
+func resolve() int {
+	str := scanString(sc)
+	acceptable := map[byte]struct{}{'A': {}, 'C': {}, 'G': {}, 'T': {}}
+	maxLen, l := 0, 0
+	for i := 0; i < len(str); i++ {
+		if _, ok := acceptable[str[i]]; ok {
+			l++
+		} else {
+			if maxLen < l {
+				maxLen = l
 			}
-			subL++
+			l = 0
 		}
-		if max < subL {
-			max = subL
-		}
-		// next of broken point
-		i = i + subL + 1
 	}
-	fmt.Printf("%d\n", max)
-}
-
-func newByteSet(input string) set {
-	s := newSet()
-	for i := 0; i < len(input); i++ {
-		s.add(input[i])
+	if maxLen < l {
+		maxLen = l
 	}
-	return s
+	return maxLen
 }
 
-type set map[byte]none
-
-func newSet() set {
-	return make(map[byte]none)
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
 }
-
-func (s set) add(item byte) {
-	s[item] = mark
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
-
-func (s set) doesContain(item byte) bool {
-	_, ok := s[item]
-	return ok
-}
-
-var mark none
-
-type none struct{}
