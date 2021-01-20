@@ -1,28 +1,56 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+)
 
-func main() {
-	var n int
-	fmt.Scanf("%d", &n)
-	fmt.Printf("%d\n", numOfOddDigitNum(n))
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
+
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
+	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
+	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
 }
 
-func numOfOddDigitNum(n int) (count int) {
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
+}
+
+func resolve() int {
+	n := scanInt(sc)
+	var count int
 	for i := 1; i <= n; i++ {
-		if digit(i)%2 == 1 {
+		if len(digit(i))%2 == 1 {
 			count++
 		}
 	}
 	return count
 }
-func digit(n int) int {
-	if n == 0 {
-		return 0
-	}
-	digit := 0
-	for i := 1; i <= n; i *= 10 {
-		digit++
-	}
-	return digit
+
+func digit(i int) string {
+	return strconv.Itoa(i)
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
