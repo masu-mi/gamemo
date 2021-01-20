@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 )
@@ -27,40 +26,52 @@ func initScanner(r io.Reader) *bufio.Scanner {
 
 func main() {
 	sc = initScanner(os.Stdin)
-	fmt.Println(resolve(parseProblem()))
+	fmt.Println(resolve())
 }
+func resolve() int {
+	a, b, c, x, y := scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc)
+	var price int
 
-func parseProblem() (a, b, ab, x, y int) {
-	return scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc), scanInt(sc)
-}
-
-func resolve(a, b, ab, x, y int) int {
-	minCost := math.MaxInt64
-	for i := 0; i <= max(x, y); i++ {
-		v := cost(a, b, ab, 2*i, x, y)
-		if v < minCost {
-			minCost = v
-		}
+	var base int
+	if a+b > 2*c {
+		base = 2 * c
+	} else {
+		base = a + b
 	}
-	return minCost
+	minNum, leftNum := min(x, y), max(x, y)-min(x, y)
+	price += minNum * base
+	var left int
+	if x > y {
+		left = a
+	} else {
+		left = b
+	}
+	if left > 2*c {
+		left = 2 * c
+	}
+	price += leftNum * left
+	return price
 }
 
-func cost(a, b, ab, n, x, y int) int {
-	return ab*n + max(0, x-n/2)*a + max(0, y-n/2)*b
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/nums.go] with goone.
+
+func relu(n int) int {
+	return max(0, n)
 }
 
 func max(a, b int) int {
-	if a > b {
-		return a
+	if a < b {
+		return b
 	}
-	return b
+	return a
 }
 
 func min(a, b int) int {
-	if a < b {
-		return a
+	if a > b {
+		return b
 	}
-	return b
+	return a
 }
 
 // snip-scan-funcs
