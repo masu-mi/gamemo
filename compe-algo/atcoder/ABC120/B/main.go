@@ -8,43 +8,42 @@ import (
 	"strconv"
 )
 
-func main() {
-	fmt.Printf("%d\n", resolve(parseProblem(os.Stdin)))
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-func parseProblem(r io.Reader) (int, int, int) {
-	const (
-		initialBufSize = 100000
-		maxBufSize     = 1000000
-	)
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
 	buf := make([]byte, initialBufSize)
 
 	sc := bufio.NewScanner(r)
 	sc.Buffer(buf, maxBufSize)
 	sc.Split(bufio.ScanWords) // bufio.ScanLines
-	a, b, k := scanInt(sc), scanInt(sc), scanInt(sc)
-	return a, b, k
+	return sc
 }
 
-func resolve(a, b, k int) int {
-	max := min(a, b)
-	count := 0
-	for i := max; i > 0; i-- {
-		if a%i == 0 && b%i == 0 {
-			count++
-		}
-		if count == k {
-			return i
-		}
-	}
-	// out of scope
-	return -1
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
 }
-func min(a, b int) int {
-	if a < b {
-		return a
+
+func resolve() int {
+	a, b, k := scanInt(sc), scanInt(sc), scanInt(sc)
+	top := a
+	if top > b {
+		top = b
 	}
-	return b
+	for i := top; i > 0; i-- {
+		if a%i == 0 && b%i == 0 {
+			k--
+			if k == 0 {
+				return i
+			}
+		}
+	}
+	panic("NO REACH")
 }
 
 // snip-scan-funcs
