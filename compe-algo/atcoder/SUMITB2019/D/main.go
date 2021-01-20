@@ -32,70 +32,31 @@ func main() {
 func resolve() int {
 	_ = scanInt(sc)
 	s := scanString(sc)
-
-	lastPos := map[byte]int{}
-	for i := 0; i < len(s); i++ {
-		lastPos[s[i]] = i
-	}
-
-	accessed := map[string]struct{}{}
 	var num int
-	for i := 0; i+2 < len(s); i++ {
-		if _, ok := accessed[string([]byte{s[i]})]; ok {
-			continue
-		}
-		for j := i + 1; j+1 < len(s); j++ {
-			if _, ok := accessed[string([]byte{s[i], s[j]})]; ok {
-				continue
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			for k := 0; k < 10; k++ {
+				if acceptable(s, i, j, k) {
+					num++
+				}
 			}
-			num += countVariationNum(j+1, lastPos)
-			accessed[string([]byte{s[i], s[j]})] = struct{}{}
-		}
-		accessed[string([]byte{s[i]})] = struct{}{}
-	}
-	return num
-}
-
-func countVariationNum(k int, lastPos map[byte]int) int {
-	num := 0
-	for _, p := range lastPos {
-		if k <= p {
-			num++
 		}
 	}
 	return num
 }
 
-func newByteSet(input string) byteSet {
-	s := newSet()
-	for i := 0; i < len(input); i++ {
-		s.add(input[i])
+func acceptable(s string, target ...int) bool {
+	targetIndex := 0
+	for i := 0; i < len(s); i++ {
+		if int(s[i]-'0') == target[targetIndex] {
+			targetIndex++
+			if targetIndex == len(target) {
+				return true
+			}
+		}
 	}
-	return s
+	return false
 }
-
-type byteSet map[byte]none
-
-func newSet() byteSet {
-	return make(map[byte]none)
-}
-
-func (s byteSet) add(item byte) {
-	s[item] = mark
-}
-
-func (s byteSet) doesContain(item byte) bool {
-	_, ok := s[item]
-	return ok
-}
-
-func (s byteSet) size() int {
-	return len(s)
-}
-
-var mark none
-
-type none struct{}
 
 // snip-scan-funcs
 func scanInt(sc *bufio.Scanner) int {
