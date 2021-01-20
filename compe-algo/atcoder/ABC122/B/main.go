@@ -31,10 +31,10 @@ func main() {
 
 func resolve() int {
 	str := scanString(sc)
-	acceptable := map[byte]struct{}{'A': {}, 'C': {}, 'G': {}, 'T': {}}
-	maxLen, l := 0, 0
+	s := newByteSet("ACGT")
+	var maxLen, l int
 	for i := 0; i < len(str); i++ {
-		if _, ok := acceptable[str[i]]; ok {
+		if s.doesContain(str[i]) {
 			l++
 		} else {
 			if maxLen < l {
@@ -48,6 +48,37 @@ func resolve() int {
 	}
 	return maxLen
 }
+
+func newByteSet(input string) byteSet {
+	s := newSet()
+	for i := 0; i < len(input); i++ {
+		s.add(input[i])
+	}
+	return s
+}
+
+type byteSet map[byte]none
+
+func newSet() byteSet {
+	return make(map[byte]none)
+}
+
+func (s byteSet) add(item byte) {
+	s[item] = mark
+}
+
+func (s byteSet) doesContain(item byte) bool {
+	_, ok := s[item]
+	return ok
+}
+
+func (s byteSet) size() int {
+	return len(s)
+}
+
+var mark none
+
+type none struct{}
 
 // snip-scan-funcs
 func scanInt(sc *bufio.Scanner) int {
