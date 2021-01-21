@@ -26,50 +26,62 @@ func initScanner(r io.Reader) *bufio.Scanner {
 
 func main() {
 	sc = initScanner(os.Stdin)
-	fmt.Println(resolve(parseProblem()))
+	fmt.Println(resolve())
 }
 
-func parseProblem() int {
+func resolve() int {
 	n, m := scanInt(sc), scanInt(sc)
-	tb := make([][]int, m)
+	connection := map[int]int{}
 	for i := 0; i < m; i++ {
-		tb[i] = make([]int, n)
-		l := scanInt(sc)
-		for j := 0; j < l; j++ {
-			tb[i][scanInt(sc)-1] = 1
+		flg := 1 << uint(i)
+		k := scanInt(sc)
+		for j := 0; j < k; j++ {
+			sw := scanInt(sc)
+			connection[sw-1] |= flg
 		}
 	}
-	ps := make([]int, m)
-	for i := 0; i < m; i++ {
-		ps[i] = scanInt(sc)
-	}
 	num := 0
+	goalState := 0
+	for j := 0; j < m; j++ {
+		p := scanInt(sc)
+		goalState |= p << uint(j)
+	}
 	for i := 0; i < 1<<uint(n); i++ {
-		if accept(n, m, tb, ps, i) {
+		state := 0
+		for idx := 0; idx < n; idx++ {
+			if (1<<uint(idx))&i == 0 {
+				continue
+			}
+			state ^= connection[idx]
+		}
+		if state == goalState {
 			num++
 		}
 	}
 	return num
 }
 
-func accept(n, m int, tb [][]int, ps []int, idx int) bool {
-	for i := 0; i < m; i++ {
-		sum := 0
-		for j := 0; j < n; j++ {
-			if idx&(1<<uint(j)) == 0 {
-				continue
-			}
-			sum += tb[i][j]
-		}
-		if ps[i] != sum%2 {
-			return false
-		}
-	}
-	return true
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/next.go] with goone.
+
+func nextInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	a, _ := strconv.Atoi(sc.Text())
+	return int(a)
 }
 
-func resolve(n int) int {
-	return n
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
+
+	a = make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt(sc)
+	}
+	return a
 }
 
 // snip-scan-funcs
