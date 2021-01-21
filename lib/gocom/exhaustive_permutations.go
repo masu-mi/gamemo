@@ -4,9 +4,7 @@ func permutations(l int) chan []int {
 	ch := make(chan []int)
 	go func() {
 		dfsPermutations(0, make([]bool, l), []int{}, func(perm []int) bool {
-			p := make([]int, len(perm))
-			copy(p, perm)
-			ch <- p
+			ch <- perm
 			return false
 		})
 		close(ch)
@@ -17,9 +15,8 @@ func permutations(l int) chan []int {
 func dfsPermutations(pos int, used []bool, perm []int, atLeaf func(perm []int) (halt bool)) (halt bool) {
 	l := len(used)
 	if pos == l {
-		if atLeaf(perm) {
-			return true
-		}
+		p := append(perm[:0:0], perm...) // copy for safe
+		return atLeaf(p)
 	}
 
 	for i := 0; i < l; i++ {
