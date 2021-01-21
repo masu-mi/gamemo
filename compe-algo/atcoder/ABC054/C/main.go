@@ -8,119 +8,171 @@ import (
 	"strconv"
 )
 
-func main() {
-	fmt.Printf("%d\n", resolve(parseProblem(os.Stdin)))
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-type none struct{}
+var sc *bufio.Scanner
 
-var mark none = struct{}{}
-
-type edge struct{ x, y int }
-
-type edgeSet map[edge]none
-
-func (es edgeSet) exist(e edge) bool {
-	x, y := min(e.x, e.y), max(e.x, e.y)
-	_, ok := es[edge{x, y}]
-	return ok
-}
-
-func (es edgeSet) Add(e edge) {
-	x, y := min(e.x, e.y), max(e.x, e.y)
-	es[edge{x, y}] = mark
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func parseProblem(r io.Reader) (n, m int, es edgeSet) {
-	const (
-		initialBufSize = 100000
-		maxBufSize     = 1000000
-	)
+func initScanner(r io.Reader) *bufio.Scanner {
 	buf := make([]byte, initialBufSize)
 
 	sc := bufio.NewScanner(r)
 	sc.Buffer(buf, maxBufSize)
 	sc.Split(bufio.ScanWords) // bufio.ScanLines
-
-	es = edgeSet{}
-
-	n = scanInt(sc)
-	m = scanInt(sc)
-	for i := 0; i < m; i++ {
-		x, y := scanInt(sc)-1, scanInt(sc)-1
-		es.Add(edge{x, y})
-	}
-	return n, m, es
+	return sc
 }
 
-func resolve(n, m int, es edgeSet) int {
-	num := 0
-	for l := range permutations(n - 1) {
-		if allExists(es, l) {
-			num++
-		}
-	}
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
+}
+
+func resolve() int {
+	n, m := scanInt(sc), scanInt(sc)
+	ll := nextLinkedList(n, m, 1, sc)
+	dfs(ll, 0, n)
 	return num
 }
 
-func allExists(es edgeSet, l []int) bool {
-	cur := -1
-	for i := 0; i < len(l); i++ {
-		next := l[i]
-		if !es.exist(edge{cur + 1, next + 1}) {
-			return false
-		}
-		cur = next
-	}
-	return true
-}
+var num int
+var visited map[int]bool = map[int]bool{}
 
-func permutations(l int) chan []int {
-	ch := make(chan []int)
-	go func() {
-		dfsPermutations(0, make([]bool, l), []int{}, func(perm []int) bool {
-			p := make([]int, len(perm))
-			copy(p, perm)
-			ch <- p
-			return false
-		})
-		close(ch)
+func dfs(ll *basicLinkedList, start, n int) bool {
+	visited[start] = true
+	defer func() {
+		delete(visited, start)
 	}()
-	return ch
-}
-
-func dfsPermutations(pos int, used []bool, perm []int, atLeaf func(perm []int) (halt bool)) (halt bool) {
-	l := len(used)
-	if pos == l {
-		if atLeaf(perm) {
-			return true
-		}
+	if len(visited) == n {
+		num++
+		return false
 	}
-
-	for i := 0; i < l; i++ {
-		if used[i] {
+	for nextNode := range ll.edges[start].members() {
+		if _, ok := visited[nextNode]; ok {
 			continue
 		}
-		used[i] = true
-		if dfsPermutations(pos+1, used, append(perm, i), atLeaf) {
-			return true
-		}
-		used[i] = false
+		dfs(ll, nextNode, n)
 	}
 	return false
+}
+
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/none.go /Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/next.go /Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/linkedlist.go /Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/set.go] with goone.
+
+type none struct{}
+
+var mark none
+
+func nextInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	a, _ := strconv.Atoi(sc.Text())
+	return int(a)
+}
+
+func nextString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
+}
+
+func nextIntSlice(sc *bufio.Scanner, n int) (a []int) {
+
+	a = make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt(sc)
+	}
+	return a
+}
+
+type basicLinkedList struct {
+	size, deg int
+	edges     []intSet
+}
+
+func newLinkedList(size int) *basicLinkedList {
+	ll := &basicLinkedList{size: size, edges: make([]intSet, size)}
+	for i := 0; i < size; i++ {
+		ll.edges[i] = newIntSet()
+	}
+	return ll
+}
+
+func (ll *basicLinkedList) addEdge(a, b int) {
+	ll.addDirectedEdge(a, b)
+	ll.addDirectedEdge(b, a)
+}
+
+func (ll *basicLinkedList) addDirectedEdge(a, b int) {
+	if ll.edges[a].add(b) {
+		ll.deg++
+	}
+}
+
+func (ll *basicLinkedList) exists(a, b int) bool {
+	return ll.edges[a].doesContain(b)
+}
+
+func nextLinkedList(n, m, offset int, sc *bufio.Scanner) *basicLinkedList {
+	ll := newLinkedList(n)
+	for i := 0; i < m; i++ {
+		x, y := nextInt(sc), nextInt(sc)
+
+		x -= offset
+		y -= offset
+		ll.addEdge(x, y)
+	}
+	return ll
+}
+
+func nextDirectedLinkedList(n, m, offset int, sc *bufio.Scanner) *basicLinkedList {
+	ll := newLinkedList(n)
+	for i := 0; i < m; i++ {
+		x, y := nextInt(sc), nextInt(sc)
+
+		x -= offset
+		y -= offset
+		ll.addDirectedEdge(x, y)
+	}
+	return ll
+}
+
+type intSet map[int]none
+
+func newIntSet() intSet {
+	return map[int]none{}
+}
+
+func (s intSet) add(i int) (added bool) {
+	_, ok := s[i]
+	added = !ok
+	s[i] = mark
+	return
+}
+
+func (s intSet) remove(i int) (removed bool) {
+	_, removed = s[i]
+	delete(s, i)
+	return
+}
+
+func (s intSet) doesContain(i int) bool {
+	_, ok := s[i]
+	return ok
+}
+
+func (s intSet) size() int {
+	return len(s)
+}
+
+func (s intSet) members() chan int {
+	ch := make(chan int)
+	go func() {
+		defer close(ch)
+		for k := range s {
+			ch <- k
+		}
+	}()
+	return ch
 }
 
 // snip-scan-funcs
