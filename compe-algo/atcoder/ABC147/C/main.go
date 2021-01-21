@@ -4,88 +4,76 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 )
 
-func main() {
-	fmt.Printf("%d\n", resolve(parseProblem(os.Stdin)))
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-func parseProblem(r io.Reader) (int, []testimony) {
-	var n int
-	fmt.Fscanf(r, "%d", &n)
+var sc *bufio.Scanner
+
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
 
 	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
 	sc.Split(bufio.ScanWords) // bufio.ScanLines
-
-	testimonies := []testimony{}
-	for i := 0; i < n; i++ {
-		testimonies = append(testimonies, parseTestimony(sc))
-	}
-	return n, testimonies
+	return sc
 }
 
-type testimony struct{ h, l uint32 }
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
+}
 
-func parseTestimony(sc *bufio.Scanner) (t testimony) {
+func resolve() int {
+	claims := map[int]map[int]int{}
 	n := scanInt(sc)
-
-	t.l, t.h = math.MaxUint32, 0
 	for i := 0; i < n; i++ {
-		idx := scanInt(sc)
-		horneset := scanInt(sc)
-		if horneset == 0 {
-			t.l ^= 1 << uint(idx-1)
-		} else {
-			t.h |= 1 << uint(idx-1)
+		a := scanInt(sc)
+		m := map[int]int{}
+		for j := 0; j < a; j++ {
+			x, y := scanInt(sc)-1, scanInt(sc)
+			m[x] = y
+		}
+		claims[i] = m
+	}
+	maxNum := 0
+	for i := 0; i < 1<<uint(n); i++ {
+		num := onesCount(uint64(i))
+		if maxNum > num {
+			continue
+		}
+		if acceptable(claims, n, i) {
+			maxNum = num
 		}
 	}
-	return
+	return maxNum
 }
 
-func scanInt(sc *bufio.Scanner) int {
-	sc.Scan()
-	i, _ := strconv.Atoi(sc.Text())
-	return int(i)
-}
-
-func resolve(n int, testimonies []testimony) int {
-	max := uint32(0)
-	for i := 0; i < 1<<uint32(n); i++ {
-		if checkAllHornest(n, uint32(i), testimonies) {
-			numH := onesCount(uint64(i))
-			if max < uint32(numH) {
-				max = uint32(numH)
+func acceptable(claims map[int]map[int]int, num, state int) bool {
+	for i := 0; i < num; i++ {
+		if state>>uint(i)&1 != 0 {
+			for k, v := range claims[i] {
+				if state>>uint(k)&1 != v {
+					return false
+				}
 			}
 		}
-	}
-	return int(max)
-}
-
-func checkAllHornest(n int, i uint32, testimonies []testimony) bool {
-	flag := 1
-	idx := 0
-	for idx < n {
-		if i&uint32(flag) == uint32(flag) {
-			if i&testimonies[idx].l != i {
-				return false
-			}
-			if i|testimonies[idx].h != i {
-				return false
-			}
-		}
-		flag <<= 1
-		idx++
 	}
 	return true
 }
 
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/bits_util.go] with goone.
+
 func onesCount(x uint64) (num int) {
-	const m0 = 0x5555555555555555 // 01010101 ...
-	const m1 = 0x3333333333333333 // 00110011 ...
-	const m2 = 0x0f0f0f0f0f0f0f0f // 00001111 ...
+	const m0 = 0x5555555555555555
+	const m1 = 0x3333333333333333
+	const m2 = 0x0f0f0f0f0f0f0f0f
 
 	const m = 1<<64 - 1
 	x = x>>1&(m0&m) + x&(m0&m)
@@ -95,4 +83,35 @@ func onesCount(x uint64) (num int) {
 	x += x >> 16
 	x += x >> 32
 	return int(x) & (1<<7 - 1)
+}
+
+func ntz(bits uint64) (num int) {
+
+	return onesCount(bits&(-bits) - 1)
+}
+
+func nlz(bits uint64) (num int) {
+
+	bits = bits | (bits >> 1)
+	bits = bits | (bits >> 2)
+	bits = bits | (bits >> 4)
+	bits = bits | (bits >> 8)
+	bits = bits | (bits >> 16)
+	bits = bits | (bits >> 32)
+	return onesCount(^bits)
+}
+
+func refBit(i uint64, b uint) int {
+	return int((i >> b) & 1)
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
