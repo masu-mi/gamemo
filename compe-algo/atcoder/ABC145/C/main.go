@@ -9,54 +9,59 @@ import (
 	"strconv"
 )
 
-func main() {
-	fmt.Printf("%f\n", resolve(parseProblem(os.Stdin)))
-}
+const (
+	initialBufSize = 100000
+	maxBufSize     = 1000000
+)
 
-type city struct{ x, y int }
+var sc *bufio.Scanner
 
-func parseProblem(r io.Reader) (cities []city) {
-	var n int
-	fmt.Fscanf(r, "%d", &n)
+func initScanner(r io.Reader) *bufio.Scanner {
+	buf := make([]byte, initialBufSize)
+
 	sc := bufio.NewScanner(r)
+	sc.Buffer(buf, maxBufSize)
 	sc.Split(bufio.ScanWords) // bufio.ScanLines
+	return sc
+}
+
+func main() {
+	sc = initScanner(os.Stdin)
+	fmt.Println(resolve())
+}
+
+func resolve() float64 {
+	n := scanInt(sc)
+	m := make([]pair, 0, n)
 	for i := 0; i < n; i++ {
-		x := scanInt(sc)
-		y := scanInt(sc)
-		cities = append(cities, city{x, y})
+		m = append(m, pair{x: scanInt(sc), y: scanInt(sc)})
 	}
-	return cities
-}
-
-func scanInt(sc *bufio.Scanner) int {
-	sc.Scan()
-	i, _ := strconv.Atoi(sc.Text())
-	return int(i)
-}
-
-func resolve(cities []city) float64 {
-	l := len(cities)
-	sum := 0.0
 	num := 0
-	for p := range permutations(l) {
-		sum += length(p, cities)
+	totalLen := 0.0
+	for path := range permutations(n) {
+		totalLen += length(m, path)
 		num++
 	}
-	return sum / float64(num)
+	return totalLen / float64(num)
 }
 
-func length(perm []int, cities []city) float64 {
-	l := len(perm)
-	var sum float64
-	for i := 0; i < l-1; i++ {
-		sum += dist(cities[perm[i]], cities[perm[i+1]])
+func length(m []pair, path []int) float64 {
+	l := 0.0
+	for i := 1; i < len(path); i++ {
+		sp, tp := m[path[i-1]], m[path[i]]
+		xd, yd := sp.x-tp.x, sp.y-tp.y
+		l += math.Sqrt(float64(xd*xd + yd*yd))
 	}
-	return sum
+	return l
 }
 
-func dist(s, t city) float64 {
-	return math.Sqrt(math.Pow(float64(s.x-t.x), 2) + math.Pow(float64(s.y-t.y), 2))
-}
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/pair.go] with goone.
+
+type pair struct{ x, y int }
+
+// package: gocom
+// packed src of [/Users/masumi/dev/src/github.com/masu-mi/gamemo/lib/gocom/exhaustive_permutations.go] with goone.
 
 func permutations(l int) chan []int {
 	ch := make(chan []int)
@@ -91,4 +96,15 @@ func dfsPermutations(pos int, used []bool, perm []int, atLeaf func(perm []int) (
 		used[i] = false
 	}
 	return false
+}
+
+// snip-scan-funcs
+func scanInt(sc *bufio.Scanner) int {
+	sc.Scan()
+	i, _ := strconv.Atoi(sc.Text())
+	return int(i)
+}
+func scanString(sc *bufio.Scanner) string {
+	sc.Scan()
+	return sc.Text()
 }
