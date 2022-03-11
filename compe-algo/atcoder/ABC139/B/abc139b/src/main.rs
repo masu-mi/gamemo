@@ -14,11 +14,5 @@ fn main() {
 }
 
 fn calc(a: usize, b: usize) -> usize {
-    let mut n = 1;
-    let mut c = 0;
-    while n < b {
-        n = n - 1 + a;
-        c += 1;
-    }
-    return c;
+    return (a+b-3)/(a-1)
 }
